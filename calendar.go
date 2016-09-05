@@ -1,31 +1,24 @@
 package calendar
 
 import (
-	"github.com/jseely/bst"
+	"encoding/json"
+	"io"
 )
 
 type Calendar struct {
-	Events EventsContext
+	Events *EventsContext `json:"events"`
 }
 
 func NewCalendar() *Calendar {
 	return &Calendar{
-		Events: EventsContext{events: bst.New(EventSortFunc)},
+		Events: NewEventsContext(),
 	}
 }
 
-type EventsContext struct {
-	events *bst.BinarySearchTree
+func (c *Calendar) Save(writer io.Writer) error {
+	return json.NewEncoder(writer).Encode(c)
 }
 
-func (ec *EventsContext) Add(event *Event) error {
-	return ec.events.Insert(event)
-}
-
-func (ec *EventsContext) First() *Event {
-	firstEvent, wasEvent := ec.events.First().(*Event)
-	if !wasEvent {
-		return nil
-	}
-	return firstEvent
+func (c *Calendar) Load(reader io.Reader) error {
+	return json.NewDecoder(reader).Decode(c)
 }

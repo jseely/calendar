@@ -19,6 +19,16 @@ type Event struct {
 	Description string     `json:"description"`
 }
 
+func (e1 *Event) Equals(e2 *Event) bool {
+	if e1 == nil && e2 == nil {
+		return true
+	}
+	if e1 == nil || e2 == nil {
+		return false
+	}
+	return e1.ID == e2.ID && e1.Modified == e2.Modified
+}
+
 func NewEvent(name string, start, end time.Time, organizer *Contact, location *Location, description string) *Event {
 	event := &Event{
 		ID:          uuid.NewV4(),
@@ -39,10 +49,10 @@ func NewEvent(name string, start, end time.Time, organizer *Contact, location *L
 func (e *Event) MarshalJSON() ([]byte, error) {
 	type Alias Event
 	return json.Marshal(&struct {
-		*Alias
 		Start    int64 `json:"start"`
 		End      int64 `json:"end"`
 		Modified int64 `json:"modified"`
+		*Alias
 	}{
 		Start:    e.Start.UnixNano(),
 		End:      e.End.UnixNano(),
